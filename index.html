@@ -2,53 +2,85 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>موقعي الجغرافي</title>
-
+<title>مشروع موقعي الجغرافي</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
-<style>
-body{
-font-family: Arial;
-text-align:center;
-background:#f4f4f4;
-}
-
-h1{
-margin-top:20px;
-}
-
-#map{
-height:500px;
-width:90%;
-margin:auto;
-margin-top:20px;
-border-radius:10px;
-}
-</style>
-
+<link rel="stylesheet" href="css/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-
 <body>
 
-<h1>🌍 موقعي الجغرافي</h1>
-<p>مثال لخريطة تفاعلية</p>
+<!-- القائمة الرئيسية -->
+<nav>
+  <a href="index.html">الرئيسية</a>
+  <a href="about.html">تعريف القضية</a>
+  <a href="climate.html">التغير المناخي</a>
+  <a href="coasts.html">السواحل والغلاف الجوي</a>
+</nav>
 
+<h1>🌍 موقعي الجغرافي</h1>
+<p>مشروع يعرض معلومات بيئية وخريطة تفاعلية في سلطنة عمان</p>
+
+<!-- خريطة تفاعلية -->
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script>
+// إنشاء الخريطة
+var map = L.map('map').setView([24.7136, 46.6753], 6);
 
-var map = L.map('map').setView([24.7136,46.6753],10);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-attribution:'© OpenStreetMap'
+// إضافة خريطة أساسية
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
 }).addTo(map);
 
-L.marker([24.7136,46.6753]).addTo(map)
-.bindPopup("📍 هذا موقع على الخريطة")
-.openPopup();
+// البيانات الخاصة بالنقاط والمسارات
+var sites = [
+  {lat:24.7136, lng:46.6753, popup:'📍 الرياض – مركز التغير المناخي'},
+  {lat:23.5859, lng:58.4059, popup:'📍 شاطئ القرم – مناطق التعرية'},
+  {lat:24.4056, lng:56.6810, popup:'📍 محمية الطبيعية – حماية الغابات'}
+];
 
+var coasts = [
+  {lat:23.7000, lng:57.0000, popup:'🏖 ساحل مسندم'},
+  {lat:23.9500, lng:58.3000, popup:'🏖 ساحل شمال الباطنة'}
+];
+
+// إنشاء طبقة المواقع
+var sitesLayer = L.layerGroup();
+sites.forEach(s => {
+  L.marker([s.lat, s.lng]).bindPopup(s.popup).addTo(sitesLayer);
+});
+
+// إنشاء طبقة السواحل
+var coastsLayer = L.layerGroup();
+coasts.forEach(c => {
+  L.marker([c.lat, c.lng]).bindPopup(c.popup).addTo(coastsLayer);
+});
+
+// إضافة خطوط/مسارات ملونة
+var erosionLine = L.polyline([
+  [23.5859, 58.4059],
+  [23.9500, 58.3000]
+], {color: 'red', weight: 3, dashArray: '5,5'}).bindPopup('خط التعرية الساحلية').addTo(map);
+
+var conservationLine = L.polyline([
+  [24.4056, 56.6810],
+  [24.7136, 46.6753]
+], {color: 'green', weight: 3}).bindPopup('مسار المحميات الطبيعية').addTo(map);
+
+// التحكم في الطبقات
+var overlays = {
+  'مواقع التغير المناخي': sitesLayer,
+  'السواحل': coastsLayer,
+  'خط التعرية': erosionLine,
+  'مسار المحميات': conservationLine
+};
+
+L.control.layers(null, overlays).addTo(map);
+
+// إضافة الطبقات الافتراضية
+sitesLayer.addTo(map);
+coastsLayer.addTo(map);
 </script>
 
 </body>
